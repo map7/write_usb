@@ -1,0 +1,218 @@
+#!/bin/bash
+#
+# grubby-usb - A GRUBby USB Stick (Modified by Michael Pope)
+#
+# A Basic example produced for Linux Format issue 246, page: 78
+# https://pastebin.com/raw/uHE1D9VD
+#
+# This script reproduces the command sequence used in the
+# published article. Its intended purpose is to serve as
+# an example: it does not suppress output or perform any
+# error checking. Use it interactively and respond to the
+# prompts as approriate.
+#
+# Please use with caution and in conjuction with the text.
+#
+# Usage: grubby_usb /dev/sdX
+#
+# John Lane
+#
+# JL20181116
+echo "Entering write_usb..."
+
+cr=`echo $'\n.'`
+cr=${cr%.}
+
+echo_var () {
+    for v in "$@"
+    do
+        eval echo $v=${!v}
+    done
+}
+
+# Get size of target USB
+dev=$1
+devs="/sys/block/${dev##*/}"
+DEV_SIZE=$(<$devs/size)
+
+# Set variables for sizes
+(( KiB = 1 << 10,
+   MiB = KiB ** 2,
+   GiB = KiB ** 3 ))
+
+# Confirm device block size
+(( BLOCK_SIZE = $(<$devs/queue/logical_block_size),
+   ALIGN_OFFSET = $(<$devs/alignment_offset),
+   IO_SIZE = $(<$devs/queue/optimal_io_size),
+   ALIGN_SIZE = (IO_SIZE + ALIGN_OFFSET) / BLOCK_SIZE ))
+
+# If ALIGN_SIZE is zero then make it equal to MiB (1048576) / BLOCK_SIZE (512) = 2048
+(( ALIGN_SIZE = ALIGN_SIZE ? ALIGN_SIZE : MiB / BLOCK_SIZE ))
+
+# Setup GPT, BIOS & EFI Sizes
+GPT_SIZE=34
+
+(( BIOS_START = GPT_SIZE,
+   EFI_START = MiB / BLOCK_SIZE,
+   EFI_SIZE = 50 * MiB / BLOCK_SIZE ))
+
+# Setup Boot sizes
+(( BOOT_SIZE = 14 * GiB / BLOCK_SIZE,
+   BOOT_START = EFI_START + EFI_SIZE ))
+
+# Setup Data sizes
+(( DATA_SIZE = DEV_SIZE - BOOT_SIZE,
+   DATA_CRYPT_SIZE = DATA_SIZE / 2,
+   DATA_PLAIN_SIZE = DATA_SIZE - DATA_CRYPT_SIZE,
+   DATA_PLAIN_START = BOOT_SIZE,
+   DATA_CRYPT_START = DATA_PLAIN_START +
+   DATA_SIZE / 2 ))
+
+(( DATA_CRYPT_START = DATA_CRYPT_START /
+   ALIGN_SIZE * ALIGN_SIZE ))
+
+(( BIOS_END = EFI_START - 1,
+   EFI_END = BOOT_START - 1,
+   BOOT_END = DATA_PLAIN_START - 1,
+   DATA_PLAIN_END = DATA_CRYPT_START - 1,
+   DATA_CRYPT_END = DEV_SIZE - GPT_SIZE ))
+
+echo_var {DEV,BLOCK,IO,ALIGN,EFI,BOOT,DATA}_SIZE {BIOS,EFI,BOOT,DATA_{PLAIN,CRYPT}}_{START,END}
+
+# Ensure partition alignment (except BIOS boot partition)
+for b in {EFI,BOOT,DATA_{PLAIN,CRYPT}}_START
+do
+    [[ -n "${!b}" ]] && (( ${!b} % ALIGN_SIZE )) && echo "$b not aligned (${!b})" && exit 1
+done
+
+echo "About to change: $dev"
+
+# --------------------------------------------------------------------------------
+# Partitions
+# --------------------------------------------------------------------------------
+read -n1 -p "$cr Create partitions [y,n]?" partitions
+
+if [[ $partitions == "y" ]]; then
+    echo "Destroy any old partitioning information to start clean"
+    sgdisk --zap-all $dev 
+
+    echo "GPT Partitioning"
+    # On a 16GB drive I ended up with
+    # 1MB  BIOS Boot
+    # 50MB EFI
+    # 6GB  boot
+    # 4GB  data
+    # 4GB  TailsData (encrypted)
+    sgdisk -o -n 2:$EFI_START:$EFI_END -t 2:EF00 -c 2:'EFI System Partition' \
+           -n 3:$BOOT_START:$BOOT_END -t 3:8300 -c 3:boot \
+           -n 4:$DATA_PLAIN_START:$DATA_PLAIN_END -t 4:0700 -c 4:DATA \
+           -n 5:$DATA_CRYPT_START:$DATA_CRYPT_END -t 5:8301 -c 5:TailsData \
+           -n 1:$BIOS_START:$BIOS_END -t 1:EF02 -c 1:'BIOS Boot Partition' \
+           /$dev
+
+    echo "Hybrid MBR partitioning (uses sed to pipe de-commented here-script into gdisk)"
+    <<EOF sed -e 's/^ *\([^#]*\) \+# .*$/\1/' | gdisk $dev && printf ', hybrid MBR'
+      r    # recovery and transformation options
+      h    # make hybrid MBR
+      4    # add data partition
+      N    # do not place EFI GPT (0xEE) partition first
+      0c   # partition type (Win95 FAT32 LBA)
+      N    # don't set the bootable flag
+      Y    # additional protective partition
+      EE   # additional protective partition type
+      w    # write table to disk and exit
+      Y    # proceed, possibly destroying data
+EOF
+
+    echo "Make filesystems"
+    mkfs.vfat ${dev}2               # EFI
+    mkfs.ext4 ${dev}3               # boot where the ISOs go
+    mkfs.vfat ${dev}4               # data (spare space compatible with all OS's)
+
+    echo "Label filesystems"
+    e2label ${dev}3 boot
+    dosfslabel ${dev}4 DATA
+
+    echo "Encrypted data partition"
+    dm="dm-$RANDOM"
+    enc=$(mktemp -d)
+    cryptsetup luksFormat ${dev}5
+    cryptsetup open ${dev}5 $dm 
+    mkfs.ext4 /dev/mapper/$dm
+    mount /dev/mapper/$dm $enc
+    # Allow Tails to recognise the encrypted drive
+    echo '/home/amnesia/Persistent source=Persistent' > $enc/persistence.conf
+    chown 115:122 $enc/persistence.conf
+    chmod 600 $enc/persistence.conf
+    setfacl -m user:115:rwx,group::rwx,mask::rwx $enc
+
+    umount $enc
+    sync && sleep 5 && # avoid device-mapper: remove ioctl failed: Device or resource busy
+        cryptsetup close $dm
+fi
+
+# --------------------------------------------------------------------------------
+# Copy ISOs
+# --------------------------------------------------------------------------------
+read -n1 -p "$cr Copy ISOs [y,n]?" iso
+
+if [[ $iso == "y" ]]; then
+    boot=$(mktemp -d)
+    mount ${dev}3 $boot
+
+    echo "Copy iso images"
+    mkdir $boot/iso
+
+    cd ~/hacking/usb_boot/
+    rsync -Pav systemrescuecd-6.0.2.iso \
+          systemrescuecd-x86-4.8.3.iso \
+          kali-linux-xfce-2019.1-amd64.iso \
+          linuxmint-19.1-xfce-64bit.iso $boot/iso
+
+    # Also store this script on there as a backup
+    cp write_usb $boot/iso
+    cd -
+    sync
+    umount $boot
+fi
+
+# --------------------------------------------------------------------------------
+# Grub
+# --------------------------------------------------------------------------------
+read -n1 -p "$cr Create grub [y,n]?" grub
+
+if [[ $grub == "y" ]]; then
+
+    echo "Install Grub"
+    efi=$(mktemp -d)
+    boot=$(mktemp -d)
+    mount ${dev}2 $efi
+    mount ${dev}3 $boot
+    grub-install --target=i386-pc --recheck --boot-directory="$boot" $dev
+    grub-install --target=x86_64-efi --recheck --removable --efi-directory="$efi" --boot-directory="$boot"
+    umount $efi
+
+    echo "Copy font file for EFI boot menu"
+    cp /usr/share/grub/unicode.pf2 $boot/grub/
+
+    echo "Copy Grub configuration"
+    cp ~/hacking/usb_boot/grub.cfg $boot/grub
+
+    echo "Copy recovery grub configuration"
+    [[ -f /boot/grub/grub.cfg ]] && cp /boot/grub/grub.cfg $boot/grub/grub-recovery.cfg
+
+    sync
+    umount $boot
+fi
+
+# --------------------------------------------------------------------------------
+# Test
+# --------------------------------------------------------------------------------
+read -n1 -p "$cr Test [y,n]?" iso
+
+if [[ $iso == "y" ]]; then
+    # -vga cirrus         = Seems to work nicely in everything. Not fast but does the job.
+    # -machine accel=kvm  = Hardware accelaration
+    # -m 2GB              = Set memory to 2GB (default is 128MB which isn't exciting)
+    qemu-system-x86_64 -vga cirrus -machine accel=kvm -m 2G -hdb $dev
+fi
