@@ -167,6 +167,9 @@ if [[ $iso == "y" ]]; then
     rsync -Pav systemrescuecd-6.0.2.iso \
           systemrescuecd-x86-4.8.3.iso \
           kali-linux-xfce-2019.1-amd64.iso \
+          MX-18.1_386.iso \
+          rescatux-0.51b3.iso \
+          super_grub2_disk_hybrid_2.02s10.iso \
           linuxmint-19.1-xfce-64bit.iso $boot/iso
 
     # Also store this script on there as a backup
