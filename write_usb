@@ -13,7 +13,7 @@
 #
 # Please use with caution and in conjuction with the text.
 #
-# Usage: grubby_usb /dev/sdX
+# Usage: sudo bash write_usb /dev/sdX
 #
 # John Lane
 #
@@ -170,6 +170,9 @@ if [[ $iso == "y" ]]; then
           MX-18.1_386.iso \
           rescatux-0.51b3.iso \
           super_grub2_disk_hybrid_2.02s10.iso \
+          debian-live-9.8.0-amd64-xfce.iso \
+          clonezilla-live-2.6.0-37-amd64.iso \
+          tails-amd64-3.12.1.iso \
           linuxmint-19.1-xfce-64bit.iso $boot/iso
 
     # Also store this script on there as a backup
