@@ -1,0 +1,33 @@
+* Readme
+
+This is a modified script of the original Grubby USB example from Linux Format Issue 246
+
+*Caution: Make sure you double check the device before using this script. I take no responsibility for improper use of this script.*
+
+1. Check your USB drive with either
+  : dmesg
+  or
+  : lsblk
+
+2. If it's not blank use 'gparted' and create a GPT partition table on the device before entering the script
+
+3. Prepare ISO images.
+   Download the following images into the same directory as the write_usb script;
+   :    systemrescuecd-6.0.2.iso \
+   :    systemrescuecd-x86-4.8.3.iso \
+   :    kali-linux-xfce-2019.1-amd64.iso \
+   :    MX-18.1_386.iso \
+   :    rescatux-0.51b3.iso \
+   :    super_grub2_disk_hybrid_2.02s10.iso \
+   :    debian-live-9.8.0-amd64-xfce.iso \
+   :    clonezilla-live-2.6.0-37-amd64.iso \
+   :    tails-amd64-3.12.1.iso \
+   :    linuxmint-19.1-xfce-64bit.iso
+
+   If you want different OS's you will have to modify the grub.cfg and the rsync line in the script.
+
+4. Starting the script.
+  : Usage: sudo bash write_usb /dev/sdX
+  NOTE: Replace /dev/sdX with your USB device.
+
+
