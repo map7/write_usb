@@ -15,6 +15,9 @@
 #
 # Usage: sudo bash write_usb /dev/sdX
 #
+# Make sure the USB is blank. I sometimes use gparted and write
+# a GPT partition table to the device before starting this procedure.
+#
 # John Lane
 #
 # JL20181116
