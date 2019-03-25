@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# grubby-usb - A GRUBby USB Stick (Modified by Michael Pope)
+# write_usb - Multi-boot USB Stick (Modified by Michael Pope)
 #
 # A Basic example produced for Linux Format issue 246, page: 78
 # https://pastebin.com/raw/uHE1D9VD
@@ -86,6 +86,8 @@ do
 done
 
 echo "About to change: $dev"
+
+echo "Make sure nothing is mounted on $dev"
 
 # --------------------------------------------------------------------------------
 # Partitions
