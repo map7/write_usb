@@ -4,30 +4,48 @@ This is a modified script of the original Grubby USB example from Linux Format I
 
 *Caution: Make sure you double check the device before using this script. I take no responsibility for improper use of this script.*
 
-1. Check your USB drive with either
-  : dmesg
-  or
-  : lsblk
+** Installation & Usage
 
-2. If it's not blank use 'gparted' and create a GPT partition table on the device before entering the script
+ 1. Check your USB drive with either
+   : dmesg
+   or
+   : lsblk
 
-3. Prepare ISO images.
-   Download the following images into the same directory as the write_usb script;
-   | [[https://mirrors.wikimedia.org/tails/stable/tails-amd64-3.12.1/tails-amd64-3.12.1.iso][Tails 3.12.1 64bit]]           |
-   | [[https://clonezilla.org/downloads/download.php?branch=stable][Clonezilla 2.6.0-37 64bit]]    |
-   | [[https://sourceforge.net/projects/supergrub2/files/2.02s10/super_grub2_disk_2.02s10/super_grub2_disk_standalone_x86_64_efi_2.02s10.EFI/download#][SuperGrub 2.02s10]]            |
-   | [[http://sourceforge.net/projects/rescatux/files/rescatux_0_51_b3/rescatux-0.51b3.iso/download][Rescatux 0.51b3]]              |
-   | [[https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-9.8.0-amd64-xfce.iso][Debian Live 9.8.0 64bit xfce]] |
-   | [[https://osdn.net/projects/systemrescuecd/storage/releases/6.0.2/systemrescuecd-6.0.2.iso][SystemRescueCD-6.0.2]]         |
-   | [[https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/4.8.3/][SystemRescueCD-4.8.3]]         |
-   | [[https://cdimage.kali.org/kali-2019.1a/kali-linux-xfce-2019.1a-amd64.iso][Kali XFCE 2019.1 64bit]]       |
-   | [[http://mx.mirror.ausnetservers.net.au/iso/MX/Final/MX-18.1/MX-18.1_386.iso][MXLinux 18.1 32bit]]           |
-   | [[http://mirror.internode.on.net/pub/linuxmint/stable/19.1/linuxmint-19.1-xfce-64bit.iso][Linux Mint 19.1 XFCE 64bit]]   |
+ 2. If it's not blank use 'gparted' and create a GPT partition table on the device before entering the script
 
-   If you want different OS's you will have to modify the grub.cfg and the rsync line in the script.
+ 3. Prepare ISO images.
+    Download the following images into the same directory as the write_usb script;
+    | [[https://mirrors.wikimedia.org/tails/stable/tails-amd64-3.12.1/tails-amd64-3.12.1.iso][Tails 3.12.1 64bit]]           |
+    | [[https://clonezilla.org/downloads/download.php?branch=stable][Clonezilla 2.6.0-37 64bit]]    |
+    | [[https://sourceforge.net/projects/supergrub2/files/2.02s10/super_grub2_disk_2.02s10/super_grub2_disk_standalone_x86_64_efi_2.02s10.EFI/download#][SuperGrub 2.02s10]]            |
+    | [[http://sourceforge.net/projects/rescatux/files/rescatux_0_51_b3/rescatux-0.51b3.iso/download][Rescatux 0.51b3]]              |
+    | [[https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-9.8.0-amd64-xfce.iso][Debian Live 9.8.0 64bit xfce]] |
+    | [[https://osdn.net/projects/systemrescuecd/storage/releases/6.0.2/systemrescuecd-6.0.2.iso][SystemRescueCD-6.0.2]]         |
+    | [[https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/4.8.3/][SystemRescueCD-4.8.3]]         |
+    | [[https://cdimage.kali.org/kali-2019.1a/kali-linux-xfce-2019.1a-amd64.iso][Kali XFCE 2019.1 64bit]]       |
+    | [[http://mx.mirror.ausnetservers.net.au/iso/MX/Final/MX-18.1/MX-18.1_386.iso][MXLinux 18.1 32bit]]           |
+    | [[http://mirror.internode.on.net/pub/linuxmint/stable/19.1/linuxmint-19.1-xfce-64bit.iso][Linux Mint 19.1 XFCE 64bit]]   |
 
-4. Starting the script.
-  : Usage: sudo bash write_usb /dev/sdX
-  NOTE: Replace /dev/sdX with your USB device.
+    If you want different OS's you will have to modify the grub.cfg and the rsync line in the script.
+
+ 4. Starting the script.
+   : Usage: sudo bash write_usb /dev/sdX
+   NOTE: Replace /dev/sdX with your USB device.
 
 
+** Tested machines 
+
+|                               | Shuttle | System76 Orxy4 Pro (2018) | BB-8 UP Squared |
+| Distro                        | DS47    | Tricky GPU                | (UEFI ONLY)     |
+|-------------------------------+---------+---------------------------+-----------------|
+| System Rescue CD 4.8.3        | y       | y (no GUI)                | y (no GUI)      |
+| System Rescue CD 6.0.2        | y       | y (1 x 4k screen)         | y               |
+| Linux Mint 19.1 64bit         | y       | y (1 x 4k screen)         | y               |
+| Kali 2019.1 64bit             | y       | y (1 x 2k screen)         | y               |
+| Debian 9.8 LIVE 64bit         | y       | y (no GUI)                | y               |
+| Clonezilla 2.6.0-37 64bit     | y       | y                         | y               |
+| MX Linux 18.1 32bit           | y       | y (1 x 2k screen)         | y               |
+| Tails Linux 3.12.1 64bit      | y       | y (1 x 4k screen scaled)  | y               |
+| RescueTUX 0.51b3 32bit        | y       | y (1 x 2k screen)         | y               |
+| RescueTUX 0.51b3 64bit        | y       | N/A                       | n/a             |
+| SuperGrub2 2.02s10 (32/64bit) | y       | y                         | y               |
