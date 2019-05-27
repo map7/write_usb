@@ -171,7 +171,7 @@ if [[ $iso == "y" ]]; then
     cd ~/hacking/usb_boot/
     rsync -Pav systemrescuecd-6.0.2.iso \
           systemrescuecd-x86-4.8.3.iso \
-          kali-linux-xfce-2019.1-amd64.iso \
+          kali-linux-xfce-2019.2-amd64.iso \
           MX-18.1_386.iso \
           rescatux-0.51b3.iso \
           super_grub2_disk_hybrid_2.02s10.iso \

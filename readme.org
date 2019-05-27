@@ -22,7 +22,7 @@ This is a modified script of the original Grubby USB example from Linux Format I
     | [[https://cdimage.debian.org/debian-cd/current-live/amd64/iso-hybrid/debian-live-9.8.0-amd64-xfce.iso][Debian Live 9.8.0 64bit xfce]] |
     | [[https://osdn.net/projects/systemrescuecd/storage/releases/6.0.2/systemrescuecd-6.0.2.iso][SystemRescueCD-6.0.2]]         |
     | [[https://sourceforge.net/projects/systemrescuecd/files/sysresccd-x86/4.8.3/][SystemRescueCD-4.8.3]]         |
-    | [[https://cdimage.kali.org/kali-2019.1a/kali-linux-xfce-2019.1a-amd64.iso][Kali XFCE 2019.1 64bit]]       |
+    | [[https://cdimage.kali.org/kali-2019.2/kali-linux-xfce-2019.2-amd64.iso][Kali XFCE 2019.2 64bit]]       |
     | [[http://mx.mirror.ausnetservers.net.au/iso/MX/Final/MX-18.1/MX-18.1_386.iso][MXLinux 18.1 32bit]]           |
     | [[http://mirror.internode.on.net/pub/linuxmint/stable/19.1/linuxmint-19.1-xfce-64bit.iso][Linux Mint 19.1 XFCE 64bit]]   |
 
