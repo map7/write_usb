@@ -37,6 +37,7 @@ echo_var () {
 dev=$1
 devs="/sys/block/${dev##*/}"
 DEV_SIZE=$(<$devs/size)
+ISO_SIZE=14
 
 # Set variables for sizes
 (( KiB = 1 << 10,
@@ -60,7 +61,7 @@ GPT_SIZE=34
    EFI_SIZE = 50 * MiB / BLOCK_SIZE ))
 
 # Setup Boot sizes
-(( BOOT_SIZE = 14 * GiB / BLOCK_SIZE,
+(( BOOT_SIZE = ISO_SIZE * GiB / BLOCK_SIZE,
    BOOT_START = EFI_START + EFI_SIZE ))
 
 # Setup Data sizes
@@ -168,7 +169,6 @@ if [[ $iso == "y" ]]; then
     echo "Copy iso images"
     mkdir $boot/iso
 
-    cd ~/hacking/usb_boot/
     rsync -Pav systemrescuecd-6.0.2.iso \
           systemrescuecd-x86-4.8.3.iso \
           kali-linux-xfce-2019.2-amd64.iso \
