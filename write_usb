@@ -207,7 +207,7 @@ if [[ $grub == "y" ]]; then
     cp /usr/share/grub/unicode.pf2 $boot/grub/
 
     echo "Copy Grub configuration"
-    cp ~/hacking/usb_boot/grub.cfg $boot/grub
+    cp grub.cfg $boot/grub
 
     echo "Copy recovery grub configuration"
     [[ -f /boot/grub/grub.cfg ]] && cp /boot/grub/grub.cfg $boot/grub/grub-recovery.cfg
