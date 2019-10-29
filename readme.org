@@ -28,7 +28,10 @@ This is a modified script of the original Grubby USB example from Linux Format I
 
     If you want different OS's you will have to modify the grub.cfg and the rsync line in the script.
 
- 4. Starting the script.
+ 4. Change ISO_SIZE variable in the write_usb script to match the GB of all ISO images.
+    Make sure you have a big enough USB drive for all of this.
+
+ 5. Starting the script.
    : Usage: sudo bash write_usb /dev/sdX
    NOTE: Replace /dev/sdX with your USB device.
 
