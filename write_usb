@@ -169,16 +169,16 @@ if [[ $iso == "y" ]]; then
     echo "Copy iso images"
     mkdir $boot/iso
 
-    rsync -Pav systemrescuecd-6.0.2.iso \
+    rsync -Pav systemrescuecd-6.0.3.iso \
           systemrescuecd-x86-4.8.3.iso \
-          kali-linux-xfce-2019.2-amd64.iso \
-          MX-18.1_386.iso \
+          kali-linux-xfce-2019.3-amd64.iso \
+          MX-19_386.iso \
           rescatux-0.51b3.iso \
-          super_grub2_disk_hybrid_2.02s10.iso \
-          debian-live-9.8.0-amd64-xfce.iso \
-          clonezilla-live-2.6.0-37-amd64.iso \
-          tails-amd64-3.12.1.iso \
-          linuxmint-19.1-xfce-64bit.iso $boot/iso
+          super_grub2_disk_standalone_x86_64_efi_2.04s1.EFI \
+          debian-live-10.2.0-amd64-xfce.iso \
+          clonezilla-live-2.6.4-10-amd64.iso \
+          tails-amd64-4.0.iso \
+          linuxmint-19.2-xfce-64bit.iso $boot/iso
 
     # Also store this script on there as a backup
     cp write_usb $boot/iso
